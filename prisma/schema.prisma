@@ -9,6 +9,13 @@ datasource db {
 
 model User {
   id    String @id @unique
-  email String @unique
-  name  String
+  todos Todo[]
+}
+
+model Todo {
+  id        Int     @id @default(autoincrement())
+  text      String
+  completed Boolean
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
 }
