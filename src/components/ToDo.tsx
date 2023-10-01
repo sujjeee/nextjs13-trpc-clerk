@@ -4,12 +4,19 @@ import { trpc } from '@/app/_trpc/client';
 import type { AppRouter } from '@/trpc';
 import React, { useState } from 'react';
 import type { inferRouterOutputs } from '@trpc/server';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { X, Check, Loader2 } from 'lucide-react';
+import { Skeleton } from './ui/skeleton';
+import { cn } from '@/lib/utils';
+import { todo } from 'node:test';
+
 
 type RouterOutput = inferRouterOutputs<AppRouter>
 
 type Todos = RouterOutput['addTodo']
 
-function ToDo({ session }: { session: string }) {
+function ToDo() {
 
   const [todos, setTodos] = useState<Todos[]>([]);
   const [todoText, setTodoText] = useState('');
@@ -17,7 +24,7 @@ function ToDo({ session }: { session: string }) {
   const utils = trpc.useContext()
 
   const [currDelete, setCurrDelete] = useState<number | null>(null)
-  const [isAddingTodo, setIsAddingTodo] = useState<boolean>(false)
+  const [isAddingTodo, setIsAddingTodo] = useState<number | null>(null)
   const { data: allTodos, isLoading } = trpc.getTodo.useQuery(undefined, {
     onSuccess: (data) => {
       setTodos(data)
@@ -32,17 +39,18 @@ function ToDo({ session }: { session: string }) {
       setCurrDelete(id)
     },
     onSettled() {
-      setCurrDelete(null)
+      setTimeout(() => {
+        setCurrDelete(null);
+      }, 1500)
     },
     onError: (error, newTodo) => {
-      // console.log("deleteTodoError", error)
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== newTodo.id));
     },
   })
 
   const { mutate: addTodo } = trpc.addTodo.useMutation({
     onMutate: (newTodo) => {
-      setIsAddingTodo(true);
+      setIsAddingTodo(0);
       const { text, completed } = newTodo;
       const todoToAdd: Todos = {
         id: 0,
@@ -64,25 +72,25 @@ function ToDo({ session }: { session: string }) {
         }
         return todo;
       }));
+      setIsAddingTodo(updatedTodo.id)
       utils.getTodo.invalidate()
     },
     onSettled() {
-      setIsAddingTodo(false)
+      setIsAddingTodo(null)
     }
   });
 
   return (
-    <div className='flex flex-col space-y-3'>
-      <div className='relative justify-center items-center flex h-full overflow-hidden'>
-        <input
-          className="shadow overflow-hidden appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          type="text"
-          placeholder="type here"
+    < div className='max-w-sm  w-full space-y-4'>
+      <div className="flex w-fullitems-center space-x-2">
+        <Input
+          type="email"
+          className='border-primary bg-transparent w-full text-muted-foreground '
+          placeholder="type here..."
           value={todoText}
           onChange={(e) => setTodoText(e.target.value)}
-        // Handle "Enter" key press
         />
-        <button
+        <Button
           onClick={() => {
             setTodoText('')
             addTodo({
@@ -90,41 +98,60 @@ function ToDo({ session }: { session: string }) {
               completed: false
             })
           }}
-          className="absolute bg-blue-500 top-0 right-0 justify-center items-center flex h-full px-4 rounded-r"
-        >
-          {
-            isAddingTodo
-              ? "0"
-              : "ADD"
-          }
-        </button>
+        >ADD</Button>
       </div>
-      {allTodos && allTodos?.length !== 0 ? (
-        <>
-          {todos.map((todo, index) => (
-            <div key={index}
-              className={`text-base px-3 py-1 rounded-md border break-words flex justify-between items-center ${!todo.userId ? 'bg-red-600 animate-pulse' : ''
-                }`}
-            >
-              {todo.text}
+      <div className='space-y-2'>
+        {allTodos && allTodos?.length !== 0 ? (
+          <>
+            {todos.map((todo, index) => (
               <div
-                onClick={() => deleteTodo({ id: todo.id })}
-                className='cursor-pointer hover:text-red-600 p-2'>
-                {
-                  currDelete === todo.id
-                    ? "0"
-                    : "x"
-                }
+                key={index}
+                className={cn("relative ml-auto bg-primary text-primary-foreground flex w-full flex-col gap-2 rounded-lg px-3 py-2 text-sm h-10 justify-center",
+                  {
+                    "bg-primary animate-pulse": !todo.userId
+                  }
+                )}>
+                {todo.text}
+                <div className='absolute right-2.5 -translate-y-2/4 top-2/4 flex gap-4'>
+                  {isAddingTodo != todo.id
+                    ? (
+                      <>
+                        <Check className='h-4 w-4  text-green-500 hover:text-green-900  cursor-pointer' />
+                        <div
+                          onClick={() => deleteTodo({ id: todo.id })}>
+                          {
+                            currDelete === todo.id
+                              ? (
+                                <Loader2 className='h-4 w-4 text-red-500 hover:text-red-900 cursor-pointer animate-spin' />
+                              )
+                              : (
+                                <X className='h-4 w-4 text-red-500 hover:text-red-900 cursor-pointer' />
+                              )
+                          }
+                        </div>
+                      </>
+                    )
+                    : null
+                  }
+
+                </div>
               </div>
-            </div>
-          ))}
-        </>
-      ) : isLoading ? (
-        <div>loading...</div>
-      ) : (
-        <div>No Todo to Show!</div>
-      )}
-    </div>
+            ))}
+          </>
+        ) : isLoading ? (
+          <div className='space-y-2'>
+            <Skeleton className="h-9 w-full bg-primary" />
+            <Skeleton className="h-9 w-full bg-primary" />
+            <Skeleton className="h-9 w-full bg-primary" />
+            <Skeleton className="h-9 w-full bg-primary" />
+          </div>
+        ) : (
+          <div className='text-muted-foreground'>
+            <li>hey! add your new todos ✔</li>
+          </div>
+        )}
+      </div>
+    </ div>
   );
 }
 

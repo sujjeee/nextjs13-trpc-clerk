@@ -1,8 +1,10 @@
 
 import Deatils from '@/components/Deatils';
+import Profile from '@/components/Profile';
 import ToDo from '@/components/ToDo';
 import { db } from '@/db';
 import { UserButton, currentUser } from '@clerk/nextjs';
+
 import { redirect } from 'next/navigation'
 
 export default async function Home() {
@@ -19,13 +21,11 @@ export default async function Home() {
   if (!dbUser) redirect('/auth-callback?origin=/')
 
   return (
-    <main className="flex flex-col gap-8  items-center justify-between p-24">
-      <div className='max-w-sm border flex items-center p-4 justify-between w-full'>
-        <div className='font-bold text-2xl'>{user?.firstName}</div>
-        <UserButton />
-        <Deatils />
+    <main className="flex flex-col gap-8  items-center justify-between sm:p-24 p-6 w-full">
+      <div className='max-w-sm border-2 border-primary flex items-center p-4 justify-between w-full rounded-lg'>
+        <Profile session={user} />
       </div>
-      <ToDo session={user.id} />
+      <ToDo />
     </main>
   )
 }

@@ -3,6 +3,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
+import { cn } from '@/lib/utils'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <Providers>
         <ClerkProvider>
-          <body className={inter.className}>{children}</body>
+          <body className={cn("bg-black", inter.className)}>{children}</body>
         </ClerkProvider>
       </Providers>
     </html>
