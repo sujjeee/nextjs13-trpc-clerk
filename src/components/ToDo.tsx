@@ -41,6 +41,7 @@ function ToDo() {
       setCurrDelete(null);
     },
     onError: (error, newTodo) => {
+      console.log("delete error", error)
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== newTodo.id));
     },
   })
