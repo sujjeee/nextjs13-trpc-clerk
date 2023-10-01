@@ -16,7 +16,7 @@ const Profile: React.FC<ProfileProps> = ({ session }) => {
         <div className='flex justify-between items-center w-full '>
             <Avatar className='rounded-lg'>
                 <AvatarImage src={session.imageUrl} alt="@shadcn" />
-                <AvatarFallback>CN</AvatarFallback>
+                <AvatarFallback>SG</AvatarFallback>
             </Avatar>
             <Button onClick={() => signOut()}>Logout</Button>
         </div>

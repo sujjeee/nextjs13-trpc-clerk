@@ -74,6 +74,30 @@ export const appRouter = router({
             })
 
             return newTodo;
+        }),
+
+    updateTodo: privateProcedure
+        .input(
+            z.object({
+                id: z.number(),
+                completed: z.boolean()
+            })
+        )
+        .mutation(async ({ ctx, input }) => {
+            const { userId } = ctx;
+
+            const updatedTodo = await db.todo.update({
+                where: {
+                    id: input.id,
+                    userId,
+
+                },
+                data: {
+                    completed: input.completed
+                },
+            })
+
+            return updatedTodo;
         })
 
 });
