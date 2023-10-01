@@ -9,7 +9,6 @@ import { Button } from './ui/button';
 import { X, Check, Loader2 } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import { cn } from '@/lib/utils';
-import { todo } from 'node:test';
 
 
 type RouterOutput = inferRouterOutputs<AppRouter>
@@ -39,9 +38,7 @@ function ToDo() {
       setCurrDelete(id)
     },
     onSettled() {
-      setTimeout(() => {
-        setCurrDelete(null);
-      }, 1500)
+      setCurrDelete(null);
     },
     onError: (error, newTodo) => {
       setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== newTodo.id));
